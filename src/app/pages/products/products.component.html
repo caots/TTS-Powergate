@@ -1,0 +1,96 @@
+<div class="contain">
+  <h1>Product</h1>
+  <form>
+    <div class="form-group">
+        <input type="text" class="form-control" #input>
+      </div>
+  </form>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor='let product of listProduct, let i = idnex'>
+        <td scope="row">{{product.id}}</td>
+        <td>{{product.name}}</td>
+        <td>{{product.price | currency : 'VND'}}</td>
+        <td>{{product.status ? "Con hang" : 'Het hang'}}</td>
+        <td>
+          <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#updateProductModal"
+            (click)="onCheckProductId(product.id)">
+            Edit
+          </button>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteProductModal"
+            (click)="onCheckProductId(product.id)">
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- delete modal product -->
+<div class="modal fade" id="updateProductModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="name">Name Product:</label>
+            <input type="text" class="form-control" id="name" name="name" [(ngModel)]="product.name"
+            [ngModelOptions]="{standalone: true}">
+          </div>
+          <div class="form-group">
+            <label for="price">Price :</label>
+            <input type="number" class="form-control" id="price" name="price" [(ngModel)]="product.price"
+              [ngModelOptions]="{standalone: true}">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onEditProduct()">Yes</button>
+            <button type="button" class="btn btn-primary">No</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- delete modal product -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h3>Do you sure delete !</h3>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="onDeleteProduct()">
+          Yes
+        </button>
+        <button type="button" class="btn btn-primary">No</button>
+      </div>
+    </div>
+  </div>
+</div>
