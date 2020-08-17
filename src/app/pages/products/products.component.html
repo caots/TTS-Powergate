@@ -17,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor='let product of listProduct, let i = idnex'>
+      <tr *ngFor='let product of suggestedProduct, let i = idnex'>
         <td scope="row">{{product.id}}</td>
         <td>{{product.name}}</td>
         <td>{{product.price | currency : 'VND'}}</td>

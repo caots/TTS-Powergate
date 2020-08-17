@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges ,AfterViewInit, ViewChild, ElementRef} from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ProductsService } from './../../services/products.service'
 import { Product } from '../../interfaces/product'
 import { fromEvent } from 'rxjs';
@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs'
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css']
 })
-export class ProductsComponent implements OnInit, OnDestroy,AfterViewInit {
+export class ProductsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   product: Product = {
     id: 0
@@ -20,6 +20,7 @@ export class ProductsComponent implements OnInit, OnDestroy,AfterViewInit {
   listProduct: Product[] = [];
   checkId: number
   subscribe: Subscription;
+  suggestedProduct: Product[] = []
 
   @ViewChild('input') input: ElementRef;
 
@@ -35,6 +36,7 @@ export class ProductsComponent implements OnInit, OnDestroy,AfterViewInit {
     this.subscribe = this.productService.getAllProducts().subscribe(
       data => {
         this.listProduct = data
+        this.suggestedProduct = data;
       },
       err => {
         this.productService.handlerError(err);
@@ -43,20 +45,20 @@ export class ProductsComponent implements OnInit, OnDestroy,AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.getAllProduct()
     fromEvent(this.input.nativeElement, 'keyup')
       .pipe(
         filter(Boolean),
         debounceTime(150),
         distinctUntilChanged(),
         tap((text) => {
+          this.suggestedProduct = []
           let txtSearch = this.input.nativeElement.value;
-          let rs = [];
           this.listProduct.forEach(data => {
-            if(data.name.search(txtSearch) >= 0){
-              rs.push(data);
+            if (data.name.search(txtSearch) >= 0) {
+              this.suggestedProduct.push(data);              
             }
-          })
-          this.listProduct = rs
+          })          
         })
       )
       .subscribe();
