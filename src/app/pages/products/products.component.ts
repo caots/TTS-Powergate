@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { ProductsService } from './../../services/products.service'
+import { ProductsService } from '../../services/products.service'
 import { Product } from '../../interfaces/product'
 import { fromEvent } from 'rxjs';
 import { filter, debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 
 
 import { Subscription } from 'rxjs'
@@ -20,16 +22,49 @@ export class ProductsComponent implements OnInit, OnDestroy, AfterViewInit {
   listProduct: Product[] = [];
   checkId: number
   subscribe: Subscription;
-  suggestedProduct: Product[] = []
+  suggestedProduct: Product[] = [];
+  checkChangeData: boolean = false;
+
+  // form data
+  changeData: FormGroup;
+  submitted = false;
 
   @ViewChild('input') input: ElementRef;
 
   constructor(
-    private productService: ProductsService
+    private productService: ProductsService,
+    private formBuilder: FormBuilder
   ) { }
 
   ngOnInit(): void {
     this.getAllProduct();
+    this.initForm()
+  }
+
+  initForm() {
+    this.changeData = this.formBuilder.group({
+      name: ['', [Validators.required]],
+      price: ['', [Validators.required]],
+    });
+  }
+
+  get f() { return this.changeData.controls; }
+
+  onSubmit() {
+    this.submitted = true;
+    // stop here if form is invalid
+    if (this.changeData.invalid) {
+      return;
+    } else {
+      
+      if (this.checkChangeData) {
+        this.onCreateProduct();
+      } else {
+        this.onEditProduct();
+      }
+      document.getElementById("hidden-modal").click(); 
+    }
+
   }
 
   getAllProduct() {
@@ -56,9 +91,9 @@ export class ProductsComponent implements OnInit, OnDestroy, AfterViewInit {
           let txtSearch = this.input.nativeElement.value;
           this.listProduct.forEach(data => {
             if (data.name.search(txtSearch) >= 0) {
-              this.suggestedProduct.push(data);              
+              this.suggestedProduct.push(data);
             }
-          })          
+          })
         })
       )
       .subscribe();
@@ -68,6 +103,20 @@ export class ProductsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscribe = this.productService.getProductById(id).subscribe(
       data => {
         this.product = data;
+      },
+      err => {
+        this.productService.handlerError(err);
+      }
+    )
+  }
+
+  onCreateProduct() {
+    this.product.id = this.checkId;
+    console.log(this.product);
+    this.subscribe = this.productService.createProduct(this.product).subscribe(
+      data => {
+        this.product = data;
+        this.listProduct.push(data)
       },
       err => {
         this.productService.handlerError(err);
@@ -101,8 +150,18 @@ export class ProductsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onCheckProductId(id) {
-    this.checkId = id;
-    this.getProductById(id);
+    if (id == -1) {
+      this.checkChangeData = true
+      this.checkId = this.listProduct[this.listProduct.length - 1].id + 1;
+      this.product = {
+        id: 0
+      }
+    } else {
+      this.checkChangeData = false
+      this.checkId = id;
+      this.getProductById(id);
+    }
+
   }
 
   getIndex(id: number) {

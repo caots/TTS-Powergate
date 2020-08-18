@@ -55,6 +55,21 @@ export class ProductsService {
     } 
   }
 
+  //create product
+
+  createProduct(data){
+    let url = `${apiEndPoints.product}`
+    try{
+      return this.http.post(url, data).pipe(
+        map(res => {
+          return res
+        })
+      )
+    }catch(err){
+      return of(err)
+    }
+  }
+
 
   // update product
   updateProduct(data){

@@ -1,11 +1,18 @@
 <div class="contain">
   <h1>Product</h1>
-  <form>
-    <div class="form-group">
+  <div>
+    <button type="button" class="btn btn-primary" 
+      data-toggle="modal" data-target="#updateProductModal"
+      (click)="onCheckProductId(-1)"
+    >
+      Create
+    </button>
+    <form>
+      <div class="form-group">
         <input type="text" class="form-control" #input>
       </div>
-  </form>
-
+    </form>
+  </div>
   <table class="table">
     <thead>
       <tr>
@@ -20,8 +27,8 @@
       <tr *ngFor='let product of suggestedProduct, let i = idnex'>
         <td scope="row">{{product.id}}</td>
         <td>{{product.name}}</td>
-        <td>{{product.price | currency : 'VND'}}</td>
-        <td>{{product.status ? "Con hang" : 'Het hang'}}</td>
+        <td>{{product.price | formatMoney: product.price }}</td>
+        <td>{{product.status | formatStatus: product.status}}</td>
         <td>
           <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#updateProductModal"
             (click)="onCheckProductId(product.id)">
@@ -49,20 +56,32 @@
         </button>
       </div>
       <div class="modal-body">
-        <form>
+        <form [formGroup]="changeData" (ngSubmit)="onSubmit()">
           <div class="form-group">
             <label for="name">Name Product:</label>
-            <input type="text" class="form-control" id="name" name="name" [(ngModel)]="product.name"
-            [ngModelOptions]="{standalone: true}">
+            <input type="text" class="form-control" id="name" name="name" 
+              formControlName="name" 
+              [ngClass]="{ 'is-invalid': submitted && f.name.errors }"
+              [(ngModel)]="product.name"
+              >
+              <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+              <div *ngIf="f.name.errors.required">Name Product is required</div>
+            </div>
           </div>
           <div class="form-group">
             <label for="price">Price :</label>
-            <input type="number" class="form-control" id="price" name="price" [(ngModel)]="product.price"
-              [ngModelOptions]="{standalone: true}">
+            <input type="number" class="form-control" id="price" name="price" 
+            formControlName="price"
+            [ngClass]="{ 'is-invalid': submitted && f.price.errors }"
+            [(ngModel)]="product.price"
+              >
+              <div *ngIf="submitted && f.price.errors" class="invalid-feedback">
+                <div *ngIf="f.price.errors.required">Price is required</div>
+            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onEditProduct()">Yes</button>
-            <button type="button" class="btn btn-primary">No</button>
+              <button type="submit" class="btn btn-primary" >Yes</button>
+              <button type="submit" class="btn btn-primary" id="hidden-modal" data-dismiss="modal" hidden="hidden"></button>
           </div>
         </form>
       </div>
@@ -71,7 +90,6 @@
   </div>
 </div>
 
-<!-- delete modal product -->
 <div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
   <div class="modal-dialog" role="document">
